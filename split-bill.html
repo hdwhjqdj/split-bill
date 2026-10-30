@@ -232,13 +232,14 @@
     <section class="sec">
       <div class="sec-title">每人应付</div>
       <div id="detail"></div>
-      <p class="payer-note">点右边的「垫付」可以指定谁先付钱</p>
+      <p class="payer-note">点右边的「让 TA 先付」，标记谁先把钱付给商家</p>
     </section>
 
     <div class="dash"></div>
 
     <section class="sec">
       <div class="sec-title">转账清单</div>
+      <p class="payer-note" style="margin:0 0 10px">一个人先把钱付给商家，其他人再把各自那份转给 TA</p>
       <div id="transfers" class="transfers"></div>
     </section>
 
@@ -419,7 +420,7 @@
       if(i === r.payerIdx){
         var tg = document.createElement("span");
         tg.className = "tag";
-        tg.textContent = "垫付";
+        tg.textContent = "先付";
         n.appendChild(tg);
       }
 
@@ -429,7 +430,7 @@
 
       var b = document.createElement("button");
       b.className = "pay";
-      b.textContent = i === r.payerIdx ? "就是TA" : "垫付";
+      b.textContent = i === r.payerIdx ? "TA 先付" : "让 TA 先付";
       b.onclick = function(){ state.payer = i; update(); };
 
       row.appendChild(n);
@@ -480,7 +481,7 @@
     var payerName = r.rows.length ? r.rows[r.payerIdx].name : "";
     if(r.rows.length > 1){
       L.push("----------");
-      L.push("由 " + payerName + " 先垫付 " + yuan(r.dueTotal) + "，其他人转给 TA");
+      L.push("由 " + payerName + " 先付 " + yuan(r.dueTotal) + "，其他人把钱转给 TA");
     }
     return L.join("\n");
   }
