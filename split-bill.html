@@ -282,29 +282,46 @@
   function money(v){ return v ? String(v) : ""; }
 
   function splitPool(pool, weights, mode){
-    var n = weights.length, out = new Array(n), i;
+    var n = weights.length, out = new Array(n), i, j;
     for(i=0;i<n;i++) out[i] = 0;
     if(n === 0 || pool <= 0) return out;
-    var total = 0;
-    for(i=0;i<n;i++) total += weights[i];
+
+    var total = 0, elig = [];
+    for(i=0;i<n;i++){
+      total += weights[i];
+      if(weights[i] > 0) elig.push(i);
+    }
+    if(!elig.length) return out;
 
     if(mode === "even" || total <= 0){
-      var base = Math.floor(pool / n), rem = pool - base * n;
-      for(i=0;i<n;i++) out[i] = base;
-      for(i=0;i<rem;i++) out[i] += 1;
+      var left = pool, act = elig.slice();
+      while(left > 0 && act.length){
+        var base = Math.floor(left / act.length), extra = left % act.length, moved = 0;
+        for(j=0;j<act.length;j++){
+          var idx = act[j];
+          var want = base + (j < extra ? 1 : 0);
+          var room = weights[idx] - out[idx];
+          var give = Math.min(want, room, left - moved);
+          out[idx] += give;
+          moved += give;
+        }
+        left -= moved;
+        act = act.filter(function(k){ return out[k] < weights[k]; });
+        if(moved === 0) break;
+      }
       return out;
     }
 
     var given = 0;
-    for(i=0;i<n;i++){
-      out[i] = Math.floor(pool * weights[i] / total);
-      given += out[i];
+    for(i=0;i<elig.length;i++){
+      j = elig[i];
+      out[j] = Math.floor(pool * weights[j] / total);
+      given += out[j];
     }
-    var left = pool - given;
-    var order = [];
-    for(i=0;i<n;i++) order.push(i);
+    var rest = pool - given;
+    var order = elig.slice();
     order.sort(function(a,b){ return weights[b] - weights[a] || a - b; });
-    for(i=0;i<left;i++) out[order[i % n]] += 1;
+    for(i=0;i<rest;i++) out[order[i % order.length]] += 1;
     return out;
   }
 
