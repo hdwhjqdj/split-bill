@@ -146,6 +146,31 @@
   .drow .pay{font-size:10.5px; font-weight:800; color:var(--gold); border:1px solid #e3cf9f; background:#fffaf0; padding:4px 8px; border-radius:8px; white-space:nowrap}
   .drow.is-payer .dm{color:var(--red)}
 
+  .chips{display:grid; grid-template-columns:1fr 1fr; gap:6px; margin-bottom:10px}
+  .chip{
+    display:flex; flex-direction:column; gap:2px; padding:8px 10px;
+    background:#faf4e6; border:1px solid var(--line); border-radius:9px;
+  }
+  .chip span{font-size:10.5px; color:var(--muted); font-weight:700; letter-spacing:.06em}
+  .chip b{font-size:14px; font-weight:900; font-family:"SFMono-Regular","Menlo","Consolas","Courier New",monospace; font-variant-numeric:tabular-nums}
+  .chip b.no{color:var(--muted)}
+
+  .mrow{padding:8px 0; border-bottom:1px dashed var(--line)}
+  .mrow:last-child{border-bottom:none}
+  .mrow .mtop{display:flex; align-items:center; justify-content:space-between; gap:8px}
+  .mrow .mn{font-size:14px; font-weight:800}
+  .mrow .st{font-size:10px; font-weight:900; letter-spacing:.05em; padding:2px 7px; border-radius:5px; margin-left:6px; vertical-align:2px}
+  .mrow .st.paid{background:#e6f2e6; color:var(--green)}
+  .mrow .st.unpaid{background:#f6ebe4; color:var(--red)}
+  .mrow .st.part{background:#f8f1dd; color:#a97f36}
+  .mrow .sbtn{font-size:11px; font-weight:800; padding:5px 10px; border-radius:8px; border:1px solid #e3cf9f; background:#fffaf0; color:var(--gold); white-space:nowrap}
+  .mrow .sbtn.undo{border-color:#d7ddcf; background:#f8faf5; color:var(--green)}
+  .mrow .mline{display:flex; flex-wrap:wrap; gap:4px 12px; margin-top:3px; font-size:11.5px; color:var(--ink2)}
+  .mrow .mline .k{color:var(--muted)}
+  .mrow .mline b{font-family:"SFMono-Regular","Menlo","Consolas","Courier New",monospace; font-variant-numeric:tabular-nums; font-weight:800}
+  .mrow .mline .recv b{color:var(--green)}
+  .mrow .mline .owe b{color:var(--red)}
+
   .transfers{display:flex; flex-direction:column; gap:9px}
   .tline{display:flex; align-items:center; justify-content:space-between; gap:10px; font-size:13.5px}
   .tline .amt{font-family:"SFMono-Regular","Menlo","Consolas","Courier New",monospace; font-variant-numeric:tabular-nums; font-weight:900; font-size:16px; color:var(--red)}
@@ -274,8 +299,22 @@
     <div class="dash"></div>
 
     <section class="sec">
+      <div class="sec-title">成员汇总</div>
+      <div class="chips">
+        <div class="chip"><span>已支付</span><b id="c-paid">0 人</b></div>
+        <div class="chip"><span>未支付</span><b id="c-unpaid">0 人</b></div>
+        <div class="chip"><span>应摊合计</span><b id="c-due">¥0.00</b></div>
+        <div class="chip"><span>待收合计</span><b id="c-recv">¥0.00</b></div>
+      </div>
+      <div id="mem"></div>
+      <p class="payer-note">「结清」表示这个人已经付过或已经收齐；再点一次可以撤销</p>
+    </section>
+
+    <div class="dash"></div>
+
+    <section class="sec">
       <div class="sec-title">转账清单</div>
-      <p class="payer-note" style="margin:0 0 10px">一个人先把钱付给商家，其他人再把各自那份转给 TA</p>
+      <p class="payer-note" style="margin:0 0 10px">只列还没结清的钱；一个人先把钱付给商家，其他人再把各自那份转给 TA</p>
       <div id="transfers" class="transfers"></div>
     </section>
 
@@ -418,7 +457,8 @@
         cur: cur,
         amt: amt,
         base: toBase(amt, cur),
-        note: p.note || ""
+        note: p.note || "",
+        paidRaw: p.paid
       };
     });
 
@@ -445,9 +485,24 @@
     var dueTotal = 0;
     for(i=0;i<rows.length;i++) dueTotal += rows[i].due;
 
+    // 已支付：先付款的人默认视为已把钱付给商家，其他人默认未付
+    var paid = [];
+    for(i=0;i<rows.length;i++){
+      var raw = list[i].paidRaw;
+      paid[i] = (raw == null || raw === "") ? (i === payerIdx ? dueTotal : 0) : toCents(raw);
+    }
+
+    var paidCount = 0, partCount = 0, recvSum = 0;
+    for(i=0;i<rows.length;i++){
+      if(paid[i] > 0) paidCount++;
+      if(paid[i] > 0 && paid[i] < rows[i].due) partCount++;
+      if(i !== payerIdx) recvSum += Math.max(rows[i].due - paid[i], 0);
+    }
+
     return {
       rows: rows, total: total, disc: disc, cut: discWanted > total,
-      ship: ship, dueTotal: dueTotal, payerIdx: payerIdx
+      ship: ship, dueTotal: dueTotal, payerIdx: payerIdx,
+      paid: paid, paidCount: paidCount, partCount: partCount, recvSum: recvSum
     };
   }
 
@@ -623,7 +678,11 @@
       var b = document.createElement("button");
       b.className = "pay";
       b.textContent = i === r.payerIdx ? "TA 先付" : "让 TA 先付";
-      b.onclick = function(){ state.payer = i; update(); };
+      b.onclick = function(){
+        state.payer = i;
+        state.people.forEach(function(p){ p.paid = null; });
+        update();
+      };
 
       row.appendChild(n);
       row.appendChild(m);
@@ -634,24 +693,134 @@
     var tbox = $("transfers");
     tbox.innerHTML = "";
     var payerName = r.rows.length ? r.rows[r.payerIdx].name : "";
-    var others = r.rows.filter(function(x, i){ return i !== r.payerIdx && x.due > 0; });
+    var owed = r.rows.map(function(x, i){
+      if(i === r.payerIdx) return 0;
+      return Math.max(x.due - r.paid[i], 0);
+    }).filter(function(v){ return v > 0; });
+
     if(!r.rows.length){
       tbox.innerHTML = '<p class="none">先添加成员和金额</p>';
-    } else if(!others.length){
+    } else if(r.rows.length === 1){
       tbox.innerHTML = '<p class="none">只有一个人，不需要转账</p>';
+    } else if(!owed.length){
+      tbox.innerHTML = '<p class="none">全部结清，不用再转账了</p>';
     } else {
-      others.forEach(function(x){
+      r.rows.forEach(function(x, i){
+        if(i === r.payerIdx) return;
+        var owe = Math.max(x.due - r.paid[i], 0);
+        if(owe <= 0) return;
         var line = document.createElement("div");
         line.className = "tline";
         line.innerHTML = '<div class="who"><b>' + x.name + '</b> 转给 <b>' + payerName + '</b></div>' +
-                        '<div class="amt">' + fmt(x.due) + '</div>';
+                        '<div class="amt">' + fmt(owe) + '</div>';
         tbox.appendChild(line);
       });
       var note = document.createElement("p");
       note.className = "payer-note";
-      note.textContent = payerName + " 先付 " + fmt(r.dueTotal) + "，其他人转完刚好两清。";
+      note.textContent = payerName + " 先付 " + fmt(r.dueTotal) + "，还没收齐 " + fmt(r.recvSum) + "。";
       tbox.appendChild(note);
     }
+
+    renderMem(r);
+  }
+
+  function renderMem(r){
+    $("c-paid").textContent = r.paidCount + " 人";
+    $("c-unpaid").textContent = (r.rows.length - r.paidCount) + " 人";
+    $("c-due").textContent = fmt(r.dueTotal);
+    $("c-recv").textContent = fmt(r.recvSum);
+
+    var box = $("mem");
+    box.innerHTML = "";
+    r.rows.forEach(function(x, i){
+      var paid = r.paid[i];
+      var isPayer = i === r.payerIdx;
+      var owe = isPayer ? 0 : Math.max(x.due - paid, 0);
+      var recv = isPayer ? r.recvSum : 0;
+
+      var stateName, stateCls;
+      if(isPayer){
+        if(recv > 0){ stateName = "已支付 · 待收"; stateCls = "part"; }
+        else { stateName = "已结清"; stateCls = "paid"; }
+      } else if(paid <= 0){
+        stateName = "未支付"; stateCls = "unpaid";
+      } else if(paid < x.due){
+        stateName = "部分支付"; stateCls = "part";
+      } else {
+        stateName = "已支付"; stateCls = "paid";
+      }
+
+      var row = document.createElement("div");
+      row.className = "mrow";
+
+      var top = document.createElement("div");
+      top.className = "mtop";
+
+      var left = document.createElement("div");
+      var nm = document.createElement("span");
+      nm.className = "mn";
+      nm.textContent = x.name;
+      var st = document.createElement("span");
+      st.className = "st " + stateCls;
+      st.textContent = stateName;
+      left.appendChild(nm);
+      left.appendChild(st);
+
+      var btn = document.createElement("button");
+      btn.className = "sbtn";
+
+      if(isPayer){
+        if(recv > 0){
+          btn.textContent = "全部收齐";
+          btn.onclick = function(){
+            r.rows.forEach(function(row, k){
+              if(k !== r.payerIdx) state.people[k].paid = String(row.due / 100);
+            });
+            update();
+          };
+        } else {
+          btn.className = "sbtn undo";
+          btn.textContent = "撤销收齐";
+          btn.onclick = function(){
+            state.people.forEach(function(p, k){
+              if(k !== r.payerIdx) p.paid = "0";
+            });
+            update();
+          };
+        }
+      } else if(owe > 0){
+        btn.textContent = "结清";
+        btn.onclick = function(){
+          state.people[i].paid = String(x.due / 100);
+          update();
+        };
+      } else {
+        btn.className = "sbtn undo";
+        btn.textContent = "撤销结清";
+        btn.onclick = function(){
+          state.people[i].paid = "0";
+          update();
+        };
+      }
+
+      top.appendChild(left);
+      top.appendChild(btn);
+
+      var line = document.createElement("div");
+      line.className = "mline";
+      line.innerHTML =
+        '<span class="k">应摊</span><b>' + fmt(x.due) + '</b>' +
+        '<span class="k">已付</span><b>' + fmt(paid) + '</b>' +
+        (recv > 0
+          ? '<span class="recv"><span class="k">待收</span> <b>' + fmt(recv) + '</b></span>'
+          : owe > 0
+            ? '<span class="owe"><span class="k">待付</span> <b>' + fmt(owe) + '</b></span>'
+            : '<span class="recv"><span class="k">待收</span> <b>' + fmt(0) + '</b></span>');
+
+      row.appendChild(top);
+      row.appendChild(line);
+      box.appendChild(row);
+    });
   }
 
   function update(){
@@ -675,16 +844,26 @@
     if(r.ship) L.push("运费 +" + fmt(r.ship));
     L.push("应收合计 " + fmt(r.dueTotal));
     L.push("----------");
-    r.rows.forEach(function(x){
+    r.rows.forEach(function(x, i){
       var line = x.name + "  " + fmt(x.due);
       if(x.cur !== state.base) line += "（原 " + fmt(x.amt, x.cur) + "）";
+      line += "  " + (i === r.payerIdx
+        ? (r.recvSum > 0 ? "已付，待收 " + fmt(r.recvSum) : "已结清")
+        : (r.paid[i] <= 0 ? "未支付" : (r.paid[i] >= x.due ? "已支付" : "部分支付")));
       if(x.note) line += "  #" + x.note;
       L.push(line);
     });
+    L.push("----------");
+    L.push("已支付 " + r.paidCount + " 人 · 未支付 " + (r.rows.length - r.paidCount) + " 人");
+    L.push("应摊合计 " + fmt(r.dueTotal) + " · 待收合计 " + fmt(r.recvSum));
     var payerName = r.rows.length ? r.rows[r.payerIdx].name : "";
     if(r.rows.length > 1){
       L.push("----------");
-      L.push("由 " + payerName + " 先付 " + fmt(r.dueTotal) + "，其他人把钱转给 TA");
+      if(r.recvSum > 0){
+        L.push("由 " + payerName + " 先付 " + fmt(r.dueTotal) + "，还该收 " + fmt(r.recvSum) + "，其他人把钱转给 TA");
+      } else {
+        L.push("这一单已经全部结清");
+      }
     }
     var fx = rateCurrencies();
     if(fx.length){
@@ -715,7 +894,7 @@
       note: state.note,
       base: state.base,
       rates: JSON.parse(JSON.stringify(state.rates)),
-      people: state.people.map(function(p){ return { name:p.name, amt:p.amt, cur:p.cur || state.base, note:p.note || "" }; }),
+      people: state.people.map(function(p){ return { name:p.name, amt:p.amt, cur:p.cur || state.base, note:p.note || "", paid:p.paid }; }),
       discount: state.discount,
       ship: state.ship,
       dmode: state.dmode,
@@ -776,9 +955,9 @@
     state.base = rec.base || "CNY";
     state.rates = rec.rates ? JSON.parse(JSON.stringify(rec.rates)) : {};
     state.people = (rec.people || []).map(function(p){
-      return { name:p.name || "", amt:p.amt || "", cur:p.cur || state.base, note:p.note || "" };
+      return { name:p.name || "", amt:p.amt || "", cur:p.cur || state.base, note:p.note || "", paid:p.paid };
     });
-    if(!state.people.length) state.people = [{ name:"", amt:"", cur:state.base, note:"" }];
+    if(!state.people.length) state.people = [{ name:"", amt:"", cur:state.base, note:"", paid:null }];
     state.discount = rec.discount != null ? rec.discount : "0";
     state.ship = rec.ship != null ? rec.ship : "0";
     state.dmode = rec.dmode || "ratio";
