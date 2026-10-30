@@ -31,7 +31,7 @@
   }
   .mono{font-family:"SFMono-Regular","Menlo","Consolas","Courier New",monospace; font-variant-numeric:tabular-nums}
   button{font-family:inherit; font-size:inherit; color:inherit; border:none; background:none; cursor:pointer; touch-action:manipulation}
-  input{font-family:inherit; font-size:inherit; color:inherit}
+  input,select{font-family:inherit; font-size:inherit; color:inherit}
   .app{max-width:520px; margin:0 auto; padding:calc(22px + env(safe-area-inset-top)) 14px calc(30px + env(safe-area-inset-bottom))}
 
   .topbar{text-align:center; margin-bottom:16px}
@@ -39,7 +39,6 @@
   .topbar h1{margin:0; font-size:clamp(26px,8vw,34px); font-weight:900; letter-spacing:-.5px}
   .sub{margin:8px 0 0; font-size:12.5px; color:var(--muted)}
 
-  /* 小票纸张 */
   .receipt{
     position:relative; background:var(--paper); border-radius:8px;
     padding:22px 18px 20px;
@@ -48,14 +47,12 @@
   .receipt::before{
     content:""; position:absolute; left:6px; right:6px; top:-10px; height:20px;
     background-image:radial-gradient(circle at 50% 100%, var(--bg) 0 8.5px, transparent 9px);
-    background-size:18px 20px; background-repeat:repeat-x;
-    pointer-events:none;
+    background-size:18px 20px; background-repeat:repeat-x; pointer-events:none;
   }
   .receipt::after{
     content:""; position:absolute; left:6px; right:6px; bottom:-10px; height:20px;
     background-image:radial-gradient(circle at 50% 0%, var(--bg) 0 8.5px, transparent 9px);
-    background-size:18px 20px; background-repeat:repeat-x;
-    pointer-events:none;
+    background-size:18px 20px; background-repeat:repeat-x; pointer-events:none;
   }
 
   .r-head{display:flex; align-items:flex-end; justify-content:space-between; gap:10px; padding-bottom:12px}
@@ -70,75 +67,83 @@
   }
   .sec-title::after{content:""; flex:1; height:1px; background:var(--line)}
 
-  /* 成员行 */
-  .prow{
-    display:grid; grid-template-columns:1fr 116px 30px; gap:8px; align-items:center;
-    padding:6px 0;
+  /* 表单通用 */
+  .grid2{display:grid; grid-template-columns:1fr 1fr; gap:8px}
+  .fld{display:flex; flex-direction:column; gap:5px}
+  .fld span{font-size:11px; color:var(--muted); font-weight:700}
+  .fld.full{grid-column:1/-1; margin-top:4px}
+  .fld input,.fld select{
+    width:100%; min-height:42px; padding:8px 11px; background:#fff;
+    border:1px solid var(--line); border-radius:10px; outline:none;
+    transition:border-color .15s, box-shadow .15s; font-size:13.5px;
   }
-  .prow input{
-    width:100%; min-height:44px; padding:8px 12px;
-    background:#fff; border:1px solid var(--line); border-radius:10px;
-    outline:none; transition:border-color .15s, box-shadow .15s;
+  .fld input:focus,.fld select:focus,.pcard input:focus,.pcard select:focus{border-color:#c9b48a; box-shadow:0 0 0 3px rgba(176,138,62,.16)}
+  select{appearance:none; background-image:linear-gradient(45deg,transparent 50%,#a89a80 50%),linear-gradient(135deg,#a89a80 50%,transparent 50%); background-position:calc(100% - 16px) 18px,calc(100% - 11px) 18px; background-size:5px 5px,5px 5px; background-repeat:no-repeat; padding-right:30px}
+
+  /* 成员 */
+  .pcard{
+    display:grid; grid-template-columns:1fr 86px 72px 26px; gap:6px; align-items:center;
+    padding-top:8px;
   }
-  .prow input:focus{border-color:#c9b48a; box-shadow:0 0 0 3px rgba(176,138,62,.16)}
-  .prow .pamt{text-align:right; font-weight:800; letter-spacing:.5px}
-  .prow .pamt::placeholder{font-weight:400; letter-spacing:0}
-  .prow .del{
-    width:30px; height:30px; border-radius:9px; color:#a89a80; font-size:18px; line-height:1;
+  .pcard input,.pcard select{
+    width:100%; min-height:44px; padding:8px 10px; background:#fff;
+    border:1px solid var(--line); border-radius:10px; outline:none;
   }
-  .prow .del:active{background:#f4ecdd}
+  .pcard .pamt{text-align:right; font-weight:800; letter-spacing:.4px; font-family:"SFMono-Regular","Menlo","Consolas","Courier New",monospace}
+  .pcard .pcur{font-size:12px; padding:8px 4px 8px 8px; background-position:calc(100% - 12px) 19px,calc(100% - 8px) 19px}
+  .pcard .del{width:26px; height:30px; color:#a89a80; font-size:18px; line-height:1; border-radius:8px}
+  .pcard .del:active{background:#f4ecdd}
+  .pcard .pnote{grid-column:1/-1; min-height:36px; font-size:12px; color:var(--ink2); background:#fffdf6}
+  .pcard .pnote::placeholder{color:#b3a893}
   .add{
-    width:100%; min-height:42px; margin-top:8px; border-radius:10px;
-    border:1px dashed #d7c6a8; color:var(--ink2); font-size:13px; font-weight:700;
-    background:#fffdf6;
+    width:100%; min-height:42px; margin-top:10px; border-radius:10px;
+    border:1px dashed #d7c6a8; color:var(--ink2); font-size:13px; font-weight:700; background:#fffdf6;
   }
   .add:active{background:#f7f0e2}
 
-  /* 费用行 */
+  /* 费用 */
   .row{display:flex; align-items:center; justify-content:space-between; gap:10px; padding:7px 0}
   .row label{font-size:13.5px; color:var(--ink2)}
-  .row input{
-    width:132px; min-height:44px; padding:8px 12px; text-align:right; font-weight:800;
+  .row input{width:132px; min-height:44px; padding:8px 12px; text-align:right; font-weight:800;
     background:#fff; border:1px solid var(--line); border-radius:10px; outline:none;
-    font-family:"SFMono-Regular","Menlo","Consolas","Courier New",monospace; font-variant-numeric:tabular-nums;
-  }
+    font-family:"SFMono-Regular","Menlo","Consolas","Courier New",monospace; font-variant-numeric:tabular-nums}
   .row input:focus{border-color:#c9b48a; box-shadow:0 0 0 3px rgba(176,138,62,.16)}
+  .row select{min-height:44px; padding:8px 30px 8px 12px; border:1px solid var(--line); border-radius:10px; background-color:#fff; font-size:13px}
 
   .field{display:flex; align-items:center; justify-content:space-between; gap:10px; padding:8px 0 2px; flex-wrap:wrap}
   .lbl{font-size:12px; color:var(--muted); font-weight:700}
   .seg{display:flex; gap:4px; padding:3px; border-radius:12px; background:#f5eee1; border:1px solid var(--line)}
-  .seg button{
-    padding:7px 12px; border-radius:9px; font-size:12px; font-weight:700; color:var(--ink2);
-  }
+  .seg button{padding:7px 12px; border-radius:9px; font-size:12px; font-weight:700; color:var(--ink2)}
   .seg button.on{background:#fff; color:var(--ink); box-shadow:0 2px 6px -2px rgba(90,74,44,.35)}
+
+  /* 汇率 */
+  .rates{padding-top:4px}
+  .rrow{display:flex; align-items:center; gap:8px; padding:5px 0; font-size:12.5px; color:var(--ink2)}
+  .rrow .cur{font-weight:800; color:var(--ink); min-width:62px}
+  .rrow input{width:98px; min-height:38px; padding:6px 9px; text-align:right;
+    border:1px solid var(--line); border-radius:9px; background:#fff; outline:none; font-weight:700;
+    font-family:"SFMono-Regular","Menlo","Consolas","Courier New",monospace; font-variant-numeric:tabular-nums}
+  .rrow input:focus{border-color:#c9b48a; box-shadow:0 0 0 3px rgba(176,138,62,.16)}
+  .norate{font-size:12px; color:var(--muted); margin:2px 0 0}
+  .hint{font-size:11.5px; color:var(--muted); margin:8px 0 0; line-height:1.7}
 
   /* 汇总 */
   .sum{padding:12px 0 2px}
   .sum .line{display:flex; justify-content:space-between; align-items:baseline; padding:5px 0; font-size:13.5px; color:var(--ink2)}
   .sum .line b{font-family:"SFMono-Regular","Menlo","Consolas","Courier New",monospace; font-variant-numeric:tabular-nums; font-size:15px; color:var(--ink)}
   .sum .line.minus b{color:var(--green)}
-  .sum .line.big{
-    margin-top:8px; padding-top:12px; border-top:2px solid var(--ink);
-    font-size:14px; font-weight:900; color:var(--ink);
-  }
+  .sum .line.big{margin-top:8px; padding-top:12px; border-top:2px solid var(--ink); font-size:14px; font-weight:900; color:var(--ink)}
   .sum .line.big b{font-size:22px; letter-spacing:.5px}
 
   /* 明细 */
-  .drow{
-    display:grid; grid-template-columns:1fr auto auto; gap:8px; align-items:center;
-    padding:7px 0; border-bottom:1px dashed var(--line);
-  }
+  .drow{display:grid; grid-template-columns:1fr auto auto; gap:8px; align-items:center; padding:7px 0; border-bottom:1px dashed var(--line)}
   .drow:last-child{border-bottom:none}
-  .drow .dn{font-size:14px; font-weight:700; display:flex; align-items:center; gap:6px}
-  .tag{
-    font-size:9.5px; font-weight:900; letter-spacing:.08em; color:#fff; padding:2px 6px; border-radius:5px;
-    background:var(--red);
-  }
-  .drow .dm{font-family:"SFMono-Regular","Menlo","Consolas","Courier New",monospace; font-variant-numeric:tabular-nums; font-size:15px; font-weight:800}
-  .drow .pay{
-    font-size:10.5px; font-weight:800; color:var(--gold); border:1px solid #e3cf9f; background:#fffaf0;
-    padding:4px 8px; border-radius:8px;
-  }
+  .drow .dn{font-size:14px; font-weight:700; display:flex; align-items:center; gap:6px; flex-wrap:wrap}
+  .drow .dn em{font-style:normal; font-size:11px; color:var(--muted); font-weight:400}
+  .tag{font-size:9.5px; font-weight:900; letter-spacing:.08em; color:#fff; padding:2px 6px; border-radius:5px; background:var(--red)}
+  .drow .dm{text-align:right; font-family:"SFMono-Regular","Menlo","Consolas","Courier New",monospace; font-variant-numeric:tabular-nums; font-size:15px; font-weight:800}
+  .drow .dm small{display:block; font-size:10px; color:var(--muted); font-weight:400}
+  .drow .pay{font-size:10.5px; font-weight:800; color:var(--gold); border:1px solid #e3cf9f; background:#fffaf0; padding:4px 8px; border-radius:8px; white-space:nowrap}
   .drow.is-payer .dm{color:var(--red)}
 
   .transfers{display:flex; flex-direction:column; gap:9px}
@@ -150,23 +155,31 @@
 
   .sign-row{display:flex; justify-content:flex-end; padding:6px 4px 2px}
   .stamp{
-    transform:rotate(-9deg);
-    border:2.5px solid rgba(212,85,58,.6); color:rgba(212,85,58,.7);
+    transform:rotate(-9deg); border:2.5px solid rgba(212,85,58,.6); color:rgba(212,85,58,.7);
     font-size:11px; font-weight:900; letter-spacing:.22em; padding:6px 10px; border-radius:6px;
     opacity:.85; pointer-events:none;
   }
 
-  .btn-copy{
-    width:100%; min-height:52px; margin-top:6px; border-radius:12px;
-    background:var(--ink); color:#fff9ec; font-size:15px; font-weight:900; letter-spacing:.1em;
-  }
+  .btn-copy{width:100%; min-height:52px; margin-top:6px; border-radius:12px; background:var(--ink); color:#fff9ec; font-size:15px; font-weight:900; letter-spacing:.1em}
   .btn-copy:active{transform:translateY(1px)}
-  .btn-reset{
-    width:100%; min-height:46px; margin-top:10px; border-radius:12px;
-    border:1px solid var(--line); color:var(--ink2); font-size:13px; font-weight:700; background:#fffdf6;
+  .btn-save{
+    width:100%; min-height:48px; margin-top:10px; border-radius:12px;
+    background:linear-gradient(180deg,#c9a45c,#a97f36); color:#fff8e8; font-size:14px; font-weight:900; letter-spacing:.08em;
+    box-shadow:0 4px 0 #8a6526;
   }
+  .btn-save:active{transform:translateY(2px); box-shadow:0 2px 0 #8a6526}
+  .btn-reset{width:100%; min-height:46px; margin-top:10px; border-radius:12px; border:1px solid var(--line); color:var(--ink2); font-size:13px; font-weight:700; background:#fffdf6}
+
+  .recs .rec{display:flex; align-items:center; justify-content:space-between; gap:8px; padding:9px 0; border-bottom:1px dashed var(--line)}
+  .recs .rec:last-child{border-bottom:none}
+  .rec .rinfo{font-size:11.5px; color:var(--muted); line-height:1.6}
+  .rec .rinfo b{display:block; font-size:13px; color:var(--ink); font-weight:800}
+  .rec .racts{display:flex; gap:6px; flex:none}
+  .rec .racts button{font-size:11px; font-weight:800; padding:6px 9px; border-radius:8px; border:1px solid var(--line); background:#fffdf6; color:var(--ink2)}
+  .rec .racts .delr{color:var(--red); border-color:#f0cdc4}
+  .empty{font-size:12px; color:var(--muted); margin:2px 0 0}
   .foot{text-align:center; font-size:11px; color:var(--muted); margin-top:18px; line-height:1.9}
-  .warn{font-size:11.5px; color:var(--red); margin:6px 0 0; min-height:0}
+  .warn{font-size:11.5px; color:var(--red); margin:6px 0 0}
 </style>
 </head>
 <body>
@@ -174,7 +187,7 @@
   <header class="topbar">
     <div class="brand mono">SPLIT.IT / 拼单台</div>
     <h1>拼单计算器</h1>
-    <p class="sub">谁点多少、谁该转多少，一次算清</p>
+    <p class="sub">多币种 · 带类别和备注 · 可以留档</p>
   </header>
 
   <main class="receipt">
@@ -182,6 +195,17 @@
       <div class="shop">拼单小票</div>
       <div class="meta mono" id="meta"></div>
     </div>
+
+    <section class="sec">
+      <div class="sec-title">本次消费</div>
+      <div class="grid2">
+        <label class="fld"><span>消费日期</span><input type="date" id="date"></label>
+        <label class="fld"><span>类别</span><select id="cat"></select></label>
+        <label class="fld full"><span>这次拼的是什么</span><input id="note" maxlength="30" placeholder="周五晚饭 / 一起回南京的车票"></label>
+      </div>
+    </section>
+
+    <div class="dash"></div>
 
     <section class="sec">
       <div class="sec-title">成员与金额</div>
@@ -220,6 +244,18 @@
 
     <div class="dash"></div>
 
+    <section class="sec">
+      <div class="sec-title">结算与汇率</div>
+      <div class="row">
+        <label>结算货币（汇总用）</label>
+        <select id="base"></select>
+      </div>
+      <div class="rates" id="rates"></div>
+      <p class="hint">汇率以人民币为基准，用来把外币折成同一种钱；数字可以手动改，只影响本地计算。</p>
+    </section>
+
+    <div class="dash"></div>
+
     <section class="sum">
       <div class="line"><span>总单</span><b id="s-total">¥0.00</b></div>
       <div class="line minus"><span>优惠</span><b id="s-discount">-¥0.00</b></div>
@@ -245,22 +281,58 @@
 
     <div class="sign-row"><div class="stamp">已 拼 单</div></div>
     <button class="btn-copy" id="copy">复制账单文字</button>
-    <button class="btn-reset" id="reset">清空重来</button>
-    <p class="foot">金额按分计算，尾差已自动补齐<br>娱乐之外，是能真的用的工具</p>
-  </main>
+    <button class="btn-save" id="save">保存这一单</button>
 
-  <p class="foot">数据只存在你自己的手机里 · 刷新即清空</p>
+    <div class="dash"></div>
+
+    <section class="sec">
+      <div class="sec-title">历史记录</div>
+      <div id="recs" class="recs"><p class="empty">还没有保存过账单</p></div>
+    </section>
+
+    <button class="btn-reset" id="reset">清空重来</button>
+    <p class="foot">金额按分计算，尾差已自动补齐<br>记录存在本机浏览器里，换设备不会同步</p>
+  </main>
 </div>
 
 <script>
 (function(){
   "use strict";
 
+  var LS_KEY = "splitbill.records.v1";
+
+  var CUR = {
+    CNY:{sym:"¥",  name:"人民币"},
+    USD:{sym:"$",  name:"美元"},
+    HKD:{sym:"HK$",name:"港币"},
+    EUR:{sym:"€",  name:"欧元"},
+    JPY:{sym:"JP¥",name:"日元"},
+    GBP:{sym:"£",  name:"英镑"},
+    KRW:{sym:"₩",  name:"韩元"},
+    THB:{sym:"฿",  name:"泰铢"}
+  };
+
+  // 1 外币 = ? 人民币
+  var RATES_CNY = { CNY:1, USD:7.15, HKD:0.92, EUR:7.80, JPY:0.048, GBP:9.05, KRW:0.0052, THB:0.20 };
+
+  var CATS = ["餐饮","车票 · 交通","打车","超市采购","住宿","娱乐","房租水电","其他"];
+
+  function today(){
+    var d = new Date();
+    var p = function(n){ return n < 10 ? "0" + n : "" + n; };
+    return d.getFullYear() + "-" + p(d.getMonth()+1) + "-" + p(d.getDate());
+  }
+
   var state = {
+    date: today(),
+    cat: "餐饮",
+    note: "周五晚饭",
+    base: "CNY",
+    rates: {},
     people: [
-      { name:"阿花", amt:"58", },
-      { name:"小李", amt:"32" },
-      { name:"老王", amt:"24" }
+      { name:"阿花", amt:"58", cur:"CNY", note:"" },
+      { name:"小李", amt:"32", cur:"CNY", note:"" },
+      { name:"老王", amt:"24", cur:"CNY", note:"" }
     ],
     discount: "12",
     ship: "9",
@@ -272,15 +344,26 @@
   var $ = function(id){ return document.getElementById(id); };
 
   function toCents(v){
-    var s = String(v == null ? "" : v).replace(/[^\d.]/g, "");
+    var s = String(v == null ? "" : v).replace(/[^\d.]/g,"");
     if(!s) return 0;
     var f = parseFloat(s);
     if(!isFinite(f) || f < 0) return 0;
     return Math.round(f * 100);
   }
-  function yuan(c){ return "¥" + (c/100).toFixed(2); }
-  function plain(c){ return (c/100).toFixed(2); }
-  function money(v){ return v ? String(v) : ""; }
+  function fmt(cents, cur){
+    var c = cur || state.base;
+    var sym = (CUR[c] && CUR[c].sym) || "";
+    return sym + (cents/100).toFixed(2);
+  }
+  function rateOf(cur){
+    if(cur === "CNY") return 1;
+    var v = parseFloat(state.rates[cur]);
+    if(isFinite(v) && v > 0) return v;
+    return RATES_CNY[cur] || 1;
+  }
+  function toBase(amountCents, cur){
+    return Math.round(amountCents * rateOf(cur) / rateOf(state.base));
+  }
 
   function splitPool(pool, weights, mode){
     var n = weights.length, out = new Array(n), i, j;
@@ -328,28 +411,33 @@
 
   function compute(){
     var list = state.people.map(function(p, i){
-      return { name: (p.name || "成员" + (i+1)), amt: toCents(p.amt), raw: p.amt };
+      var cur = p.cur || state.base;
+      var amt = toCents(p.amt);
+      return {
+        name: (p.name || "成员" + (i+1)),
+        cur: cur,
+        amt: amt,
+        base: toBase(amt, cur),
+        note: p.note || ""
+      };
     });
+
     var total = 0, i;
-    for(i=0;i<list.length;i++) total += list[i].amt;
+    for(i=0;i<list.length;i++) total += list[i].base;
 
-    var discInput = toCents(state.discount);
-    var discWanted = discInput;
-    var disc = Math.min(discInput, total);
-    var cut = discWanted > total;
+    var discWanted = toCents(state.discount);
+    var disc = Math.min(discWanted, total);
     var ship = toCents(state.ship);
+    var weights = list.map(function(x){ return x.base; });
 
-    var weights = list.map(function(x){ return x.amt; });
     var dShare = splitPool(disc, weights, state.dmode);
     var sShare = splitPool(ship, weights, state.smode);
 
     var rows = list.map(function(x, k){
       return {
-        name: x.name,
-        amt: x.amt,
-        disc: dShare[k],
-        ship: sShare[k],
-        due: x.amt - dShare[k] + sShare[k]
+        name: x.name, cur: x.cur, amt: x.amt, note: x.note,
+        baseAmt: x.base, disc: dShare[k], ship: sShare[k],
+        due: x.base - dShare[k] + sShare[k]
       };
     });
 
@@ -357,15 +445,52 @@
     var dueTotal = 0;
     for(i=0;i<rows.length;i++) dueTotal += rows[i].due;
 
-    return { rows:rows, total:total, disc:disc, discWanted:discWanted, cut:cut, ship:ship, dueTotal:dueTotal, payerIdx:payerIdx };
+    return {
+      rows: rows, total: total, disc: disc, cut: discWanted > total,
+      ship: ship, dueTotal: dueTotal, payerIdx: payerIdx
+    };
+  }
+
+  function renderMeta(){
+    var d = new Date();
+    var p = function(n){ return n < 10 ? "0" + n : "" + n; };
+    $("meta").textContent = (state.date || today()) + "\nNO." + p(d.getHours()) + p(d.getMinutes());
+    $("date").value = state.date;
+    $("note").value = state.note;
+    $("cat").value = state.cat;
+    $("base").value = state.base;
+  }
+
+  function renderCats(){
+    var s = $("cat");
+    s.innerHTML = "";
+    CATS.forEach(function(c){
+      var o = document.createElement("option");
+      o.value = c; o.textContent = c;
+      s.appendChild(o);
+    });
+  }
+
+  function renderCurSelect(sel, val){
+    sel.innerHTML = "";
+    Object.keys(CUR).forEach(function(k){
+      var o = document.createElement("option");
+      o.value = k; o.textContent = k + " " + CUR[k].name;
+      sel.appendChild(o);
+    });
+    sel.value = val;
+  }
+
+  function renderBaseSelect(){
+    renderCurSelect($("base"), state.base);
   }
 
   function renderPeople(){
     var box = $("people");
     box.innerHTML = "";
     state.people.forEach(function(p, i){
-      var row = document.createElement("div");
-      row.className = "prow";
+      var card = document.createElement("div");
+      card.className = "pcard";
 
       var name = document.createElement("input");
       name.className = "pname";
@@ -381,31 +506,88 @@
       amt.placeholder = "0.00";
       amt.oninput = function(){ p.amt = amt.value; update(); };
 
+      var cur = document.createElement("select");
+      cur.className = "pcur";
+      renderCurSelect(cur, p.cur || state.base);
+      cur.onchange = function(){
+        p.cur = cur.value;
+        renderRates();
+        update();
+      };
+
       var del = document.createElement("button");
       del.className = "del";
       del.textContent = "×";
-      del.setAttribute("aria-label", "删除这一行");
+      del.setAttribute("aria-label","删除这一行");
       del.onclick = function(){
         if(state.people.length <= 1) return;
         state.people.splice(i, 1);
         if(state.payer >= state.people.length) state.payer = 0;
-        renderPeople();
-        update();
+        renderPeople(); renderRates(); update();
       };
 
-      row.appendChild(name);
-      row.appendChild(amt);
-      row.appendChild(del);
-      box.appendChild(row);
+      var note = document.createElement("input");
+      note.className = "pnote";
+      note.value = p.note || "";
+      note.maxLength = 16;
+      note.placeholder = "这一条备注（可选，比如：没喝酒）";
+      note.oninput = function(){ p.note = note.value; update(); };
+
+      card.appendChild(name);
+      card.appendChild(amt);
+      card.appendChild(cur);
+      card.appendChild(del);
+      card.appendChild(note);
+      box.appendChild(card);
+    });
+  }
+
+  function rateCurrencies(){
+    var map = {}, out = [];
+    function add(c){
+      if(c && c !== "CNY" && !map[c]){ map[c] = 1; out.push(c); }
+    }
+    state.people.forEach(function(p){ add(p.cur || state.base); });
+    add(state.base);
+    return out;
+  }
+
+  function renderRates(){
+    var box = $("rates");
+    box.innerHTML = "";
+    var list = rateCurrencies();
+    if(!list.length){
+      var p = document.createElement("p");
+      p.className = "norate";
+      p.textContent = "这一单全部是人民币，不需要汇率。";
+      box.appendChild(p);
+      return;
+    }
+    list.forEach(function(c){
+      var r = document.createElement("div");
+      r.className = "rrow";
+      var l = document.createElement("span");
+      l.className = "cur";
+      l.textContent = "1 " + c;
+      var eq = document.createElement("span");
+      eq.textContent = "=";
+      var inp = document.createElement("input");
+      inp.className = "mono";
+      inp.inputMode = "decimal";
+      inp.value = state.rates[c] != null ? state.rates[c] : (RATES_CNY[c] || 1);
+      inp.oninput = function(){ state.rates[c] = inp.value; update(); };
+      var unit = document.createElement("span");
+      unit.textContent = "CNY";
+      r.appendChild(l); r.appendChild(eq); r.appendChild(inp); r.appendChild(unit);
+      box.appendChild(r);
     });
   }
 
   function renderResult(r){
-    $("s-total").textContent = yuan(r.total);
-    $("s-discount").textContent = "-" + yuan(r.disc);
-    $("s-ship").textContent = "+" + yuan(r.ship);
-    $("s-pay").textContent = yuan(r.dueTotal);
-
+    $("s-total").textContent = fmt(r.total);
+    $("s-discount").textContent = "-" + fmt(r.disc);
+    $("s-ship").textContent = "+" + fmt(r.ship);
+    $("s-pay").textContent = fmt(r.dueTotal);
     $("warn").textContent = r.cut ? "优惠填得比总单还高，已按总单封顶" : "";
 
     var dbox = $("detail");
@@ -423,10 +605,20 @@
         tg.textContent = "先付";
         n.appendChild(tg);
       }
+      if(x.note){
+        var em = document.createElement("em");
+        em.textContent = "· " + x.note;
+        n.appendChild(em);
+      }
 
       var m = document.createElement("div");
       m.className = "dm";
-      m.textContent = yuan(x.due);
+      m.textContent = fmt(x.due);
+      if(x.cur !== state.base){
+        var sm = document.createElement("small");
+        sm.textContent = "原 " + fmt(x.amt, x.cur);
+        m.appendChild(sm);
+      }
 
       var b = document.createElement("button");
       b.className = "pay";
@@ -452,12 +644,12 @@
         var line = document.createElement("div");
         line.className = "tline";
         line.innerHTML = '<div class="who"><b>' + x.name + '</b> 转给 <b>' + payerName + '</b></div>' +
-                        '<div class="amt">' + yuan(x.due) + '</div>';
+                        '<div class="amt">' + fmt(x.due) + '</div>';
         tbox.appendChild(line);
       });
       var note = document.createElement("p");
       note.className = "payer-note";
-      note.textContent = payerName + " 先付 " + yuan(r.dueTotal) + "，其他人转完刚好两清。";
+      note.textContent = payerName + " 先付 " + fmt(r.dueTotal) + "，其他人转完刚好两清。";
       tbox.appendChild(note);
     }
   }
@@ -466,37 +658,174 @@
     renderResult(compute());
   }
 
+  function headerLine(){
+    var parts = [state.date || today()];
+    if(state.cat) parts.push(state.cat);
+    if(state.note) parts.push(state.note);
+    return parts.join(" · ");
+  }
+
   function buildText(){
     var r = compute();
     var L = [];
     L.push("【拼单账单】");
-    L.push("总单 " + yuan(r.total));
-    if(r.disc) L.push("优惠 -" + yuan(r.disc));
-    if(r.ship) L.push("运费 +" + yuan(r.ship));
-    L.push("应收合计 " + yuan(r.dueTotal));
+    L.push(headerLine());
+    L.push("总单 " + fmt(r.total));
+    if(r.disc) L.push("优惠 -" + fmt(r.disc));
+    if(r.ship) L.push("运费 +" + fmt(r.ship));
+    L.push("应收合计 " + fmt(r.dueTotal));
     L.push("----------");
     r.rows.forEach(function(x){
-      L.push(x.name + "  " + yuan(x.due));
+      var line = x.name + "  " + fmt(x.due);
+      if(x.cur !== state.base) line += "（原 " + fmt(x.amt, x.cur) + "）";
+      if(x.note) line += "  #" + x.note;
+      L.push(line);
     });
     var payerName = r.rows.length ? r.rows[r.payerIdx].name : "";
     if(r.rows.length > 1){
       L.push("----------");
-      L.push("由 " + payerName + " 先付 " + yuan(r.dueTotal) + "，其他人把钱转给 TA");
+      L.push("由 " + payerName + " 先付 " + fmt(r.dueTotal) + "，其他人把钱转给 TA");
+    }
+    var fx = rateCurrencies();
+    if(fx.length){
+      var parts = fx.map(function(c){ return "1 " + c + "=" + (state.rates[c] != null ? state.rates[c] : RATES_CNY[c]) + " CNY"; });
+      L.push("汇率：" + parts.join("，"));
     }
     return L.join("\n");
   }
 
-  $("add").onclick = function(){
-    state.people.push({ name:"", amt:"" });
+  /* ---------- 历史记录 ---------- */
+  function loadRecs(){
+    try{
+      var raw = localStorage.getItem(LS_KEY);
+      var arr = raw ? JSON.parse(raw) : [];
+      return Array.isArray(arr) ? arr : [];
+    }catch(e){ return []; }
+  }
+  function writeRecs(list){
+    try{ localStorage.setItem(LS_KEY, JSON.stringify(list.slice(0, 30))); }catch(e){}
+  }
+
+  function snapshot(){
+    var r = compute();
+    return {
+      id: String(new Date().getTime()),
+      date: state.date,
+      cat: state.cat,
+      note: state.note,
+      base: state.base,
+      rates: JSON.parse(JSON.stringify(state.rates)),
+      people: state.people.map(function(p){ return { name:p.name, amt:p.amt, cur:p.cur || state.base, note:p.note || "" }; }),
+      discount: state.discount,
+      ship: state.ship,
+      dmode: state.dmode,
+      smode: state.smode,
+      payer: state.payer,
+      dueTotal: r.dueTotal
+    };
+  }
+
+  function renderRecs(){
+    var box = $("recs");
+    var list = loadRecs();
+    box.innerHTML = "";
+    if(!list.length){
+      box.innerHTML = '<p class="empty">还没有保存过账单</p>';
+      return;
+    }
+    list.forEach(function(rec){
+      var row = document.createElement("div");
+      row.className = "rec";
+
+      var info = document.createElement("div");
+      info.className = "rinfo";
+      var title = document.createElement("b");
+      title.textContent = (rec.note || rec.cat || "未命名账单");
+      info.appendChild(title);
+      info.appendChild(document.createTextNode(
+        (rec.date || "") + " · " + (rec.cat || "") + " · " + (rec.people ? rec.people.length : 0) + " 人 · 应收 " + fmt(rec.dueTotal || 0, rec.base)
+      ));
+
+      var acts = document.createElement("div");
+      acts.className = "racts";
+
+      var ld = document.createElement("button");
+      ld.textContent = "载入";
+      ld.onclick = function(){ restore(rec); };
+
+      var rm = document.createElement("button");
+      rm.className = "delr";
+      rm.textContent = "删除";
+      rm.onclick = function(){
+        writeRecs(loadRecs().filter(function(x){ return x.id !== rec.id; }));
+        renderRecs();
+      };
+
+      acts.appendChild(ld);
+      acts.appendChild(rm);
+      row.appendChild(info);
+      row.appendChild(acts);
+      box.appendChild(row);
+    });
+  }
+
+  function restore(rec){
+    state.date = rec.date || today();
+    state.cat = rec.cat || "餐饮";
+    state.note = rec.note || "";
+    state.base = rec.base || "CNY";
+    state.rates = rec.rates ? JSON.parse(JSON.stringify(rec.rates)) : {};
+    state.people = (rec.people || []).map(function(p){
+      return { name:p.name || "", amt:p.amt || "", cur:p.cur || state.base, note:p.note || "" };
+    });
+    if(!state.people.length) state.people = [{ name:"", amt:"", cur:state.base, note:"" }];
+    state.discount = rec.discount != null ? rec.discount : "0";
+    state.ship = rec.ship != null ? rec.ship : "0";
+    state.dmode = rec.dmode || "ratio";
+    state.smode = rec.smode || "even";
+    state.payer = Math.min(rec.payer || 0, state.people.length - 1);
+
+    $("discount").value = state.discount;
+    $("ship").value = state.ship;
+    syncSegs();
+    renderBaseSelect();
+    renderMeta();
     renderPeople();
-    var inputs = $("people").querySelectorAll(".prow");
-    var last = inputs[inputs.length - 1];
-    if(last) last.querySelector(".pname").focus();
+    renderRates();
     update();
+    window.scrollTo(0,0);
+  }
+
+  function syncSegs(){
+    var segs = document.querySelectorAll(".seg");
+    for(var s=0;s<segs.length;s++){
+      var key = segs[s].getAttribute("data-key");
+      var btns = segs[s].querySelectorAll("button");
+      for(var b=0;b<btns.length;b++){
+        btns[b].classList.toggle("on", btns[b].getAttribute("data-v") === state[key]);
+      }
+    }
+  }
+
+  /* ---------- 事件 ---------- */
+  $("add").onclick = function(){
+    state.people.push({ name:"", amt:"", cur:state.base, note:"" });
+    renderPeople(); renderRates(); update();
+    var cards = $("people").querySelectorAll(".pcard");
+    if(cards.length) cards[cards.length-1].querySelector(".pname").focus();
   };
 
   $("discount").oninput = function(){ state.discount = this.value; update(); };
   $("ship").oninput = function(){ state.ship = this.value; update(); };
+
+  $("date").onchange = function(){ state.date = this.value; renderMeta(); };
+  $("cat").onchange = function(){ state.cat = this.value; };
+  $("note").oninput = function(){ state.note = this.value; };
+
+  $("base").onchange = function(){
+    state.base = this.value;
+    renderPeople(); renderRates(); update();
+  };
 
   var segs = document.querySelectorAll(".seg");
   for(var s=0;s<segs.length;s++){
@@ -523,31 +852,51 @@
     };
     if(navigator.clipboard && navigator.clipboard.writeText){
       navigator.clipboard.writeText(txt).then(done, function(){ alert(txt); });
-    } else {
-      alert(txt);
-    }
+    } else { alert(txt); }
+  };
+
+  $("save").onclick = function(){
+    var list = loadRecs();
+    list.unshift(snapshot());
+    writeRecs(list);
+    renderRecs();
+    var btn = $("save");
+    btn.textContent = "已保存到本机";
+    setTimeout(function(){ btn.textContent = "保存这一单"; }, 1500);
   };
 
   $("reset").onclick = function(){
-    state.people = [{ name:"", amt:"" }];
+    state.date = today();
+    state.cat = "餐饮";
+    state.note = "";
+    state.base = "CNY";
+    state.rates = {};
+    state.people = [{ name:"", amt:"", cur:"CNY", note:"" }];
     state.discount = "0";
     state.ship = "0";
+    state.dmode = "ratio";
+    state.smode = "even";
     state.payer = 0;
     $("discount").value = "0";
     $("ship").value = "0";
+    syncSegs();
+    renderBaseSelect();
+    renderMeta();
     renderPeople();
+    renderRates();
     update();
   };
 
-  var d = new Date();
-  var pad = function(n){ return n < 10 ? "0" + n : "" + n; };
-  $("meta").textContent = d.getFullYear() + "." + pad(d.getMonth()+1) + "." + pad(d.getDate()) + "\nNO." + pad(d.getHours()) + pad(d.getMinutes());
-
+  // 初始化
+  renderCats();
+  renderBaseSelect();
+  renderMeta();
   state.discount = $("discount").value;
   state.ship = $("ship").value;
-
   renderPeople();
+  renderRates();
   update();
+  renderRecs();
 })();
 </script>
 </body>
