@@ -488,8 +488,8 @@
       for(var b=0;b<btns.length;b++){
         btns[b].onclick = function(){
           for(var k=0;k<btns.length;k++) btns[k].classList.remove("on");
-          btns[b].classList.add("on");
-          state[key] = btns[b].getAttribute("data-v");
+          this.classList.add("on");
+          state[key] = this.getAttribute("data-v");
           update();
         };
       }
