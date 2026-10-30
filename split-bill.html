@@ -195,11 +195,11 @@
       <div class="sec-title">优惠与运费</div>
       <div class="row">
         <label>优惠金额（满减 / 券）</label>
-        <input id="discount" inputmode="decimal" value="0" class="mono">
+        <input id="discount" inputmode="decimal" value="12" class="mono">
       </div>
       <div class="row">
         <label>运费 / 打包费</label>
-        <input id="ship" inputmode="decimal" value="0" class="mono">
+        <input id="ship" inputmode="decimal" value="9" class="mono">
       </div>
       <div class="field">
         <span class="lbl">优惠怎么分</span>
@@ -541,6 +541,9 @@
   var d = new Date();
   var pad = function(n){ return n < 10 ? "0" + n : "" + n; };
   $("meta").textContent = d.getFullYear() + "." + pad(d.getMonth()+1) + "." + pad(d.getDate()) + "\nNO." + pad(d.getHours()) + pad(d.getMinutes());
+
+  state.discount = $("discount").value;
+  state.ship = $("ship").value;
 
   renderPeople();
   update();
